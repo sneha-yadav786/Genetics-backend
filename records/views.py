@@ -103,64 +103,6 @@ def expire_pending_appointments():
             "payment_expires_at"
         ])
 
-# HELPER: EXPIRE PENDING APPOINTMENTS AND RELEASE SLOTS
-
-
-@transaction.atomic
-def expire_pending_appointments():
-
-    current_time = timezone.now()
-
-    expired_appointments = Appointment.objects.select_for_update().filter(
-        appointment_status="pending_payment",
-        payment_expires_at__isnull=False,
-        payment_expires_at__lte=current_time
-    )
-
-    for appointment in expired_appointments:
-
-        # Safety check: captured payment ko expire nahi karna.
-        captured_payment = Payment.objects.filter(
-            appointment=appointment,
-            status="captured"
-        ).exists()
-
-        if captured_payment:
-            appointment.payment_status = "paid"
-            appointment.appointment_status = "confirmed"
-            appointment.payment_expires_at = None
-
-            appointment.save(update_fields=[
-                "payment_status",
-                "appointment_status",
-                "payment_expires_at"
-            ])
-            continue
-
-        # Find the temporarily reserved slot.
-        slot = AppointmentSlot.objects.select_for_update().filter(
-            date=appointment.appointment_date,
-            start_time=appointment.appointment_time,
-            is_booked=True
-        ).first()
-
-        # Release the slot.
-        if slot:
-            slot.is_booked = False
-            slot.save(update_fields=["is_booked"])
-
-        # Mark appointment as expired.
-        appointment.payment_status = "failed"
-        appointment.appointment_status = "expired"
-        appointment.payment_expires_at = None
-
-        appointment.save(update_fields=[
-            "payment_status",
-            "appointment_status",
-            "payment_expires_at"
-        ])
-
-
 # =====================================================
 # CONTACT
 # =====================================================
