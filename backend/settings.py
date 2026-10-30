@@ -153,11 +153,11 @@ MAILERS = {
     },
 }
 CORS_ALLOWED_ORIGINS = [
-    "https://medicare-r14hszd34-sneha7864786-9882s-projects.vercel.app",
+    "https://medicare-jefys9rp9-sneha7864786-9882s-projects.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://medicare-r14hszd34-sneha7864786-9882s-projects.vercel.app",
+    "https://medicare-jefys9rp9-sneha7864786-9882s-projects.vercel.app",
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
